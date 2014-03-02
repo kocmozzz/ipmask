@@ -1,7 +1,7 @@
 {
   "name": "jquery.ipmask",
   "main": "jquery.ipmask.js",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "authors": [
     "Nikolay Solovyov <nikolaysolovjov@undev.ru>"
   ],
@@ -20,6 +20,6 @@
     "*.md"
   ],
   "dependencies": {
-    "jquery": "~1.9.0"
+    "jquery": ">=1.7"
   }
 }

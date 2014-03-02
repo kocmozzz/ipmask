@@ -62,8 +62,8 @@
       return this.each(function(idx, el) {
         var container, els, html, i, _i,
           _this = this;
-        if (el.getAttribute("value")) {
-          opts.values = el.getAttribute("value").split(".");
+        if (el.value) {
+          opts.values = el.value.split(".");
         }
         el.setAttribute("type", "hidden");
         container = document.createElement("div");

@@ -31,7 +31,7 @@
     opts.values = if opts.values then opts.values.split "." else [ "", "", "", "" ]
 
     @each (idx, el) ->
-      opts.values = el.getAttribute("value").split "." if el.getAttribute("value")
+      opts.values = el.value.split "." if el.value
       el.setAttribute "type", "hidden"
 
       # Генерируем и вставляем необходимый html
