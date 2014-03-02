@@ -4,6 +4,8 @@
     NUMBERS: [ 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105 ]
     BACKSPACE: [ 8 ]
     POINT: [ 190, 110 ]
+    ARROW_LEFT: [ 37 ]
+    ARROW_RIGHT: [ 39 ]
 
   codesToNumbers =
     48: 0, 49: 1, 50: 2, 51: 3, 52:  4, 53:  5, 54:  6, 55:  7, 56:  8, 57:  9
@@ -67,9 +69,21 @@
           e.preventDefault()
           nextInput this if value isnt ""
 
+        else if isKey keyCodes.ARROW_RIGHT, e.keyCode
+          if value.length is @selectionStart
+            nextInput @
+            e.preventDefault()
+
+        else if isKey keyCodes.ARROW_LEFT, e.keyCode
+          if @selectionStart is 0
+            prevInput @
+            e.preventDefault()
+
         else if isKey keyCodes.BACKSPACE, e.keyCode
           if value.length is 0
             prevInput this
+            e.preventDefault()
+
           else go_prev = yes if value.length is 1
 
         return e
