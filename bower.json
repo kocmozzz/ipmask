@@ -16,10 +16,8 @@
   "homepage": "https://github.com/ozio/ipmask",
   "ignore": [
     "**/.*",
-    "node_modules",
     "bower_components",
-    "test",
-    "tests"
+    "*.md"
   ],
   "dependencies": {
     "jquery": "~2.1.0"
