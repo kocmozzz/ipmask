@@ -1,0 +1,27 @@
+{
+  "name": "jquery.ipmask",
+  "main": "jquery.ipmask.js",
+  "version": "0.0.1",
+  "authors": [
+    "Nikolay Solovyov <nikolaysolovjov@undev.ru>"
+  ],
+  "description": "Simple jQuery plugin for IPv4 input",
+  "keywords": [
+    "jquery",
+    "ip",
+    "input",
+    "mask"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/ozio/ipmask",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.0"
+  }
+}
