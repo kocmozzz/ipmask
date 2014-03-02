@@ -3,12 +3,11 @@
   display: inline-block;
   padding: 0;
   overflow: hidden;
-  width: auto;
 }
 .b-ipmask .b-ipmask__input {
   font-size: 14px;
   border: none;
-  width: 40px;
+  width: 24%;
   text-align: center;
   background-color: transparent;
   height: 32px;
@@ -17,5 +16,7 @@
   outline: none;
 }
 .b-ipmask .b-ipmask__span {
+  display: inline-block;
+  width: 1%;
   font-size: 12px;
 }

@@ -25,68 +25,73 @@
   isKey = (arr, keycode) ->
     return arr.indexOf(keycode) isnt -1
 
-  $.fn.ip = (opts = placeholder: "...", callback: null ) ->
-    opts.placeholder = opts.placeholder?.split "."
-    @attr "type", "hidden"
+  $.fn.ip = (opts = placeholder: null, callback: null, values: null ) ->
 
-    # Генерируем и вставляем необходимый html
-    container = document.createElement "div"
-    container.className = "b-ipmask form-control"
+    opts.placeholder = if opts.placeholder then opts.placeholder.split "." else [ "", "", "", "" ]
+    opts.values = if opts.values then opts.values.split "." else [ "", "", "", "" ]
 
-    html = ""
-    for i in [0..3]
-      html += "<input type='text' class='b-ipmask__input' placeholder='#{opts.placeholder[i]}' maxlength='3'>"
-      html += "<span class='b-ipmask__span'>.</span>" if i < 3
-    container.innerHTML = html
+    @each (idx, el) ->
+      opts.values = el.getAttribute("value").split "." if el.getAttribute("value")
+      el.setAttribute "type", "hidden"
 
-    @after container
+      # Генерируем и вставляем необходимый html
+      container = document.createElement "div"
+      container.className = "b-ipmask form-control"
 
-    # Вешаем обработчики
-    els = $(".b-ipmask__input", container);
+      html = ""
+      for i in [0..3]
+        html += "<input type='text' class='b-ipmask__input' maxlength='3' placeholder='#{opts.placeholder[i]}' value='#{opts.values[i]}'>"
+        html += "<span class='b-ipmask__span'>.</span>" if i < 3
+      container.innerHTML = html
 
-    els.on "keydown", (e) ->
-      value = @value
+      $(el).after container
 
-      if isKey keyCodes.IGNORE, e.keyCode
-        e.preventDefault()
+      # Вешаем обработчики
+      els = $(".b-ipmask__input", container);
 
-      else if isKey keyCodes.NUMBERS, e.keyCode
-        if value.length is 2
-          sum = value + codesToNumbers[e.keyCode]
-          if sum.length isnt (parseInt(sum) + "").length or sum > 255
-            e.preventDefault()
-          else
-            go_next = yes
+      els.on "keydown", (e) ->
+        value = @value
 
-      else if isKey keyCodes.POINT, e.keyCode
-        e.preventDefault()
-        nextInput this if value isnt ""
+        if isKey keyCodes.IGNORE, e.keyCode
+          e.preventDefault()
 
-      else if isKey keyCodes.BACKSPACE, e.keyCode
-        if value.length is 0
-          prevInput this
-        else go_prev = yes if value.length is 1
+        else if isKey keyCodes.NUMBERS, e.keyCode
+          if value.length is 2
+            sum = value + codesToNumbers[e.keyCode]
+            if sum.length isnt (parseInt(sum) + "").length or sum > 255
+              e.preventDefault()
+            else
+              go_next = yes
 
-      return e
+        else if isKey keyCodes.POINT, e.keyCode
+          e.preventDefault()
+          nextInput this if value isnt ""
 
-    els.on "keyup", (e) =>
-      if go_next
-        nextInput e.target
-        go_next = no
+        else if isKey keyCodes.BACKSPACE, e.keyCode
+          if value.length is 0
+            prevInput this
+          else go_prev = yes if value.length is 1
 
-      if go_prev
-        prevInput e.target
-        go_prev = no
+        return e
 
-      ip = ""
-      els.each (idx, el) ->
-        ip += el.value + (if idx is 3 then "" else ".")
+      els.on "keyup", (e) =>
+        if go_next
+          nextInput e.target
+          go_next = no
 
-      this.val (if ip is "..." then "" else ip)
+        if go_prev
+          prevInput e.target
+          go_prev = no
 
-      opts.callback.call(this) if opts.callback
+        ip = ""
+        els.each (idx, el) ->
+          ip += el.value + (if idx is 3 then "" else ".")
 
-      return e
+        el.value = (if ip is "..." then "" else ip)
+
+        opts.callback.call(this) if opts.callback
+
+        return e
 
   this
 ) jQuery
