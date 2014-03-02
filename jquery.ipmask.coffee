@@ -31,16 +31,16 @@
     opts.values = if opts.values then opts.values.split "." else [ "", "", "", "" ]
 
     @each (idx, el) ->
-      opts.values = el.value.split "." if el.value
+      values = if el.value then el.value.split "." else opts.values
       el.setAttribute "type", "hidden"
 
       # Генерируем и вставляем необходимый html
-      container = document.createElement "div"
+      container = document.createElement "span"
       container.className = "b-ipmask form-control"
 
       html = ""
       for i in [0..3]
-        html += "<input type='text' class='b-ipmask__input' maxlength='3' placeholder='#{opts.placeholder[i]}' value='#{opts.values[i]}'>"
+        html += "<input type='text' class='b-ipmask__input' maxlength='3' placeholder='#{opts.placeholder[i]}' value='#{values[i]}'>"
         html += "<span class='b-ipmask__span'>.</span>" if i < 3
       container.innerHTML = html
 

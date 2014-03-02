@@ -60,17 +60,15 @@
       opts.placeholder = opts.placeholder ? opts.placeholder.split(".") : ["", "", "", ""];
       opts.values = opts.values ? opts.values.split(".") : ["", "", "", ""];
       return this.each(function(idx, el) {
-        var container, els, html, i, _i,
+        var container, els, html, i, values, _i,
           _this = this;
-        if (el.value) {
-          opts.values = el.value.split(".");
-        }
+        values = el.value ? el.value.split(".") : opts.values;
         el.setAttribute("type", "hidden");
-        container = document.createElement("div");
+        container = document.createElement("span");
         container.className = "b-ipmask form-control";
         html = "";
         for (i = _i = 0; _i <= 3; i = ++_i) {
-          html += "<input type='text' class='b-ipmask__input' maxlength='3' placeholder='" + opts.placeholder[i] + "' value='" + opts.values[i] + "'>";
+          html += "<input type='text' class='b-ipmask__input' maxlength='3' placeholder='" + opts.placeholder[i] + "' value='" + values[i] + "'>";
           if (i < 3) {
             html += "<span class='b-ipmask__span'>.</span>";
           }
