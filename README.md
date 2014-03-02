@@ -14,6 +14,7 @@ HTML:
 JS:
 
     $("input[data-type='ip']").ip({
-      placeholder: "192.168.0.1",
+      values: "192.168.0.1",
+      placeholder: "127.0.0.1",
       callback: function() { alert('fired!') }
     });
