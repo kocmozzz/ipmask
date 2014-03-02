@@ -50,77 +50,84 @@
       return arr.indexOf(keycode) !== -1;
     };
     $.fn.ip = function(opts) {
-      var container, els, html, i, _i, _ref,
-        _this = this;
       if (opts == null) {
         opts = {
-          placeholder: "...",
-          callback: null
+          placeholder: null,
+          callback: null,
+          values: null
         };
       }
-      opts.placeholder = (_ref = opts.placeholder) != null ? _ref.split(".") : void 0;
-      this.attr("type", "hidden");
-      container = document.createElement("div");
-      container.className = "b-ipmask form-control";
-      html = "";
-      for (i = _i = 0; _i <= 3; i = ++_i) {
-        html += "<input type='text' class='b-ipmask__input' placeholder='" + opts.placeholder[i] + "' maxlength='3'>";
-        if (i < 3) {
-          html += "<span class='b-ipmask__span'>.</span>";
+      opts.placeholder = opts.placeholder ? opts.placeholder.split(".") : ["", "", "", ""];
+      opts.values = opts.values ? opts.values.split(".") : ["", "", "", ""];
+      return this.each(function(idx, el) {
+        var container, els, html, i, _i,
+          _this = this;
+        if (el.getAttribute("value")) {
+          opts.values = el.getAttribute("value").split(".");
         }
-      }
-      container.innerHTML = html;
-      this.after(container);
-      els = $(".b-ipmask__input", container);
-      els.on("keydown", function(e) {
-        var sum, value;
-        value = this.value;
-        if (isKey(keyCodes.IGNORE, e.keyCode)) {
-          e.preventDefault();
-        } else if (isKey(keyCodes.NUMBERS, e.keyCode)) {
-          if (value.length === 2) {
-            sum = value + codesToNumbers[e.keyCode];
-            if (sum.length !== (parseInt(sum) + "").length || sum > 255) {
-              e.preventDefault();
+        el.setAttribute("type", "hidden");
+        container = document.createElement("div");
+        container.className = "b-ipmask form-control";
+        html = "";
+        for (i = _i = 0; _i <= 3; i = ++_i) {
+          html += "<input type='text' class='b-ipmask__input' maxlength='3' placeholder='" + opts.placeholder[i] + "' value='" + opts.values[i] + "'>";
+          if (i < 3) {
+            html += "<span class='b-ipmask__span'>.</span>";
+          }
+        }
+        container.innerHTML = html;
+        $(el).after(container);
+        els = $(".b-ipmask__input", container);
+        els.on("keydown", function(e) {
+          var sum, value;
+          value = this.value;
+          if (isKey(keyCodes.IGNORE, e.keyCode)) {
+            e.preventDefault();
+          } else if (isKey(keyCodes.NUMBERS, e.keyCode)) {
+            if (value.length === 2) {
+              sum = value + codesToNumbers[e.keyCode];
+              if (sum.length !== (parseInt(sum) + "").length || sum > 255) {
+                e.preventDefault();
+              } else {
+                go_next = true;
+              }
+            }
+          } else if (isKey(keyCodes.POINT, e.keyCode)) {
+            e.preventDefault();
+            if (value !== "") {
+              nextInput(this);
+            }
+          } else if (isKey(keyCodes.BACKSPACE, e.keyCode)) {
+            if (value.length === 0) {
+              prevInput(this);
             } else {
-              go_next = true;
+              if (value.length === 1) {
+                go_prev = true;
+              }
             }
           }
-        } else if (isKey(keyCodes.POINT, e.keyCode)) {
-          e.preventDefault();
-          if (value !== "") {
-            nextInput(this);
-          }
-        } else if (isKey(keyCodes.BACKSPACE, e.keyCode)) {
-          if (value.length === 0) {
-            prevInput(this);
-          } else {
-            if (value.length === 1) {
-              go_prev = true;
-            }
-          }
-        }
-        return e;
-      });
-      return els.on("keyup", function(e) {
-        var ip;
-        if (go_next) {
-          nextInput(e.target);
-          go_next = false;
-        }
-        if (go_prev) {
-          prevInput(e.target);
-          go_prev = false;
-        }
-        ip = "";
-        els.each(function(idx, el) {
-          return ip += el.value + (idx === 3 ? "" : ".");
+          return e;
         });
-        _this.val((ip === "..." ? "" : ip));
-        if (opts.callback) {
-          opts.callback.call(_this);
-        }
-        return e;
+        return els.on("keyup", function(e) {
+          var ip;
+          if (go_next) {
+            nextInput(e.target);
+            go_next = false;
+          }
+          if (go_prev) {
+            prevInput(e.target);
+            go_prev = false;
+          }
+          ip = "";
+          els.each(function(idx, el) {
+            return ip += el.value + (idx === 3 ? "" : ".");
+          });
+          el.value = (ip === "..." ? "" : ip);
+          if (opts.callback) {
+            opts.callback.call(_this);
+          }
+          return e;
+        });
       });
     };
     return this;

@@ -20,6 +20,6 @@
     "*.md"
   ],
   "dependencies": {
-    "jquery": "~2.1.0"
+    "jquery": "~1.9.3"
   }
 }
