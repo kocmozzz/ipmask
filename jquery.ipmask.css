@@ -20,3 +20,6 @@
   width: 1%;
   font-size: 12px;
 }
+[disabled] + .b-ipmask {
+  background-color: #eee;
+}
