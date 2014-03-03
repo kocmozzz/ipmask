@@ -33,7 +33,10 @@
     opts.values = if opts.values then opts.values.split "." else [ "", "", "", "" ]
 
     @each (idx, el) ->
+      return console.warn "#{el.tagName}[name='#{el.name}'] is already wrapped" if el.getAttribute("data-ipmask") is "enabled"
+
       values = if el.value then el.value.split "." else opts.values
+      el.setAttribute "data-ipmask", "enabled"
       el.setAttribute "type", "hidden"
 
       # Генерируем и вставляем необходимый html

@@ -64,7 +64,11 @@
       return this.each(function(idx, el) {
         var container, els, html, i, values, _i,
           _this = this;
+        if (el.getAttribute("data-ipmask") === "enabled") {
+          return console.warn("" + el.tagName + "[name='" + el.name + "'] is already wrapped");
+        }
         values = el.value ? el.value.split(".") : opts.values;
+        el.setAttribute("data-ipmask", "enabled");
         el.setAttribute("type", "hidden");
         container = document.createElement("span");
         container.className = "b-ipmask form-control";
