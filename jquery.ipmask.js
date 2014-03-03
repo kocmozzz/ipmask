@@ -1,3 +1,10 @@
+
+/*
+ jQuery IPMask v0.0.9
+ https://github.com/ozio/ipmask
+ */
+
+
 (function() {
 
   (function($) {
