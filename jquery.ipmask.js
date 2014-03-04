@@ -1,11 +1,33 @@
 
 /*
- jQuery IPMask v0.0.9
+ jQuery IPMask v0.0.11
  https://github.com/ozio/ipmask
  */
 
 
 (function() {
+  "use strict";
+  (function($) {
+    return $.isIP = function(ip) {
+      var i, _i;
+      if (typeof ip === "string") {
+        ip = ip.split(".");
+      }
+      if (!(ip instanceof Array) || ip.length !== 4) {
+        return false;
+      }
+      for (i = _i = 0; _i <= 3; i = ++_i) {
+        if ((ip[i] + "").length !== (parseInt(ip[i]) + "").length) {
+          return false;
+        }
+        ip[i] = parseInt(ip[i]);
+        if (isNaN(ip[i]) || ip[i] > 255 || ip[i] < 0) {
+          return false;
+        }
+      }
+      return ip;
+    };
+  })(jQuery);
 
   (function($) {
     var codesToNumbers, go_next, go_prev, isKey, keyCodes, nextInput, prevInput;
@@ -72,7 +94,7 @@
         var container, els, html, i, is_disabled, last_disabled_status, values, _i,
           _this = this;
         if (el.getAttribute("data-ipmask") === "enabled") {
-          return console.warn("" + el.tagName + "[name='" + el.name + "'] is already wrapped");
+          return console.warn("" + el.tagName + "[name='" + el.name + "'] is already wrapped by ipmask");
         }
         values = el.value ? el.value.split(".") : opts.values;
         is_disabled = el.hasAttribute("disabled") ? "disabled" : "";
@@ -164,25 +186,22 @@
             return last_disabled_status = new_disabled_status;
           }
         });
-        return Object.defineProperty(el, "value", {
-          set: function(val) {
-            var arr, j, _j, _k;
-            arr = val.split(".");
-            if (arr.length !== 4) {
-              return console.warn("wrong ip");
-            }
-            for (i = _j = 0; _j <= 3; i = ++_j) {
-              arr[i] = parseInt(arr[i]);
-              if (isNaN(arr[i]) || arr[i] < 0 || arr[i] > 255) {
+        try {
+          Object.defineProperty(el, "value", {
+            set: function(val) {
+              var arr, _j;
+              arr = $.isIP(val);
+              if (!arr) {
                 return console.warn("wrong ip");
               }
+              for (i = _j = 0; _j <= 3; i = ++_j) {
+                els[i].value = arr[i];
+              }
+              return el.setAttribute("value", arr.join("."));
             }
-            for (j = _k = 0; _k <= 3; j = ++_k) {
-              els[j].value = arr[j];
-            }
-            return el.setAttribute("value", arr.join("."));
-          }
-        });
+          });
+        } catch (_error) {}
+        return el;
       });
     };
     return this;

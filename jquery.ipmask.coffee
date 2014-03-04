@@ -1,9 +1,29 @@
 ###
-  jQuery IPMask v0.0.9
+  jQuery IPMask v0.0.11
   https://github.com/ozio/ipmask
 ###
+"use strict"
 
 (($) ->
+
+  $.isIP = (ip) ->
+    ip = ip.split "." if typeof ip is "string"
+
+    return no if not (ip instanceof Array) or ip.length isnt 4
+
+    for i in [0..3]
+      return no if (ip[i] + "").length isnt (parseInt(ip[i]) + "").length
+
+      ip[i] = parseInt ip[i]
+
+      return no if isNaN(ip[i]) or ip[i] > 255 or ip[i] < 0
+
+    ip
+
+) jQuery
+
+(($) ->
+
   keyCodes =
     IGNORE: [ 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 106, 107, 109, 186, 187, 188, 189, 191, 192, 219, 220, 221, 222 ]
     NUMBERS: [ 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105 ]
@@ -38,7 +58,7 @@
     opts.values = if opts.values then opts.values.split "." else [ "", "", "", "" ]
 
     @each (idx, el) ->
-      return console.warn "#{el.tagName}[name='#{el.name}'] is already wrapped" if el.getAttribute("data-ipmask") is "enabled"
+      return console.warn "#{el.tagName}[name='#{el.name}'] is already wrapped by ipmask" if el.getAttribute("data-ipmask") is "enabled"
 
       values = if el.value then el.value.split "." else opts.values
       is_disabled = if el.hasAttribute "disabled" then "disabled" else ""
@@ -130,21 +150,20 @@
 
           last_disabled_status = new_disabled_status
 
-      # Сеттер значение value с валидацией
-      Object.defineProperty el, "value",
-        set: (val) ->
-          arr = val.split "."
+      # Сеттер на значение value с валидацией
+      try # некоторые браузеры не позволяют переназначать нативные параметры, отлавливаем
+        Object.defineProperty el, "value",
+          set: (val) ->
+            arr = $.isIP val
 
-          return console.warn "wrong ip" if arr.length isnt 4
+            return console.warn "wrong ip" unless arr
 
-          for i in [0..3]
-            arr[i] = parseInt arr[i]
-            return console.warn "wrong ip" if isNaN(arr[i]) or arr[i] < 0 or arr[i] > 255
+            for i in [0..3]
+              els[i].value = arr[i]
 
-          for j in [0..3]
-            els[j].value = arr[j]
+            el.setAttribute "value", arr.join "."
 
-          el.setAttribute "value", arr.join "."
+      el
 
   this
 ) jQuery
