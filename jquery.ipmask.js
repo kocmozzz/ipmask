@@ -69,19 +69,20 @@
       opts.placeholder = opts.placeholder ? opts.placeholder.split(".") : ["", "", "", ""];
       opts.values = opts.values ? opts.values.split(".") : ["", "", "", ""];
       return this.each(function(idx, el) {
-        var container, els, html, i, values, _i,
+        var container, els, html, i, is_disabled, last_disabled_status, values, _i,
           _this = this;
         if (el.getAttribute("data-ipmask") === "enabled") {
           return console.warn("" + el.tagName + "[name='" + el.name + "'] is already wrapped");
         }
         values = el.value ? el.value.split(".") : opts.values;
+        is_disabled = el.hasAttribute("disabled") ? "disabled" : "";
         el.setAttribute("data-ipmask", "enabled");
         el.setAttribute("type", "hidden");
         container = document.createElement("span");
         container.className = "b-ipmask form-control";
         html = "";
         for (i = _i = 0; _i <= 3; i = ++_i) {
-          html += "<input type='text' class='b-ipmask__input' maxlength='3' placeholder='" + opts.placeholder[i] + "' value='" + values[i] + "'>";
+          html += "<input type='text' class='b-ipmask__input' maxlength='3' placeholder='" + opts.placeholder[i] + "' value='" + values[i] + "' " + is_disabled + ">";
           if (i < 3) {
             html += "<span class='b-ipmask__span'>.</span>";
           }
@@ -130,7 +131,7 @@
           }
           return e;
         });
-        return els.on("keyup", function(e) {
+        els.on("keyup", function(e) {
           var ip;
           if (go_next) {
             nextInput(e.target);
@@ -144,11 +145,43 @@
           els.each(function(idx, el) {
             return ip += el.value + (idx === 3 ? "" : ".");
           });
-          el.value = (ip === "..." ? "" : ip);
+          el.setAttribute("value", (ip === "..." ? "" : ip));
           if (opts.callback) {
             opts.callback.call(_this);
           }
           return e;
+        });
+        last_disabled_status = el.getAttribute("disabled");
+        $(el).on("DOMSubtreeModified", function(e) {
+          var new_disabled_status;
+          new_disabled_status = e.target.getAttribute("disabled");
+          if (last_disabled_status !== new_disabled_status) {
+            if (typeof new_disabled_status === "string") {
+              els.attr("disabled", "disabled");
+            } else {
+              els.removeAttr("disabled");
+            }
+            return last_disabled_status = new_disabled_status;
+          }
+        });
+        return Object.defineProperty(el, "value", {
+          set: function(val) {
+            var arr, j, _j, _k;
+            arr = val.split(".");
+            if (arr.length !== 4) {
+              return console.warn("wrong ip");
+            }
+            for (i = _j = 0; _j <= 3; i = ++_j) {
+              arr[i] = parseInt(arr[i]);
+              if (isNaN(arr[i]) || arr[i] < 0 || arr[i] > 255) {
+                return console.warn("wrong ip");
+              }
+            }
+            for (j = _k = 0; _k <= 3; j = ++_k) {
+              els[j].value = arr[j];
+            }
+            return el.setAttribute("value", arr.join("."));
+          }
         });
       });
     };

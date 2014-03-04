@@ -41,6 +41,7 @@
       return console.warn "#{el.tagName}[name='#{el.name}'] is already wrapped" if el.getAttribute("data-ipmask") is "enabled"
 
       values = if el.value then el.value.split "." else opts.values
+      is_disabled = if el.hasAttribute "disabled" then "disabled" else ""
       el.setAttribute "data-ipmask", "enabled"
       el.setAttribute "type", "hidden"
 
@@ -50,7 +51,7 @@
 
       html = ""
       for i in [0..3]
-        html += "<input type='text' class='b-ipmask__input' maxlength='3' placeholder='#{opts.placeholder[i]}' value='#{values[i]}'>"
+        html += "<input type='text' class='b-ipmask__input' maxlength='3' placeholder='#{opts.placeholder[i]}' value='#{values[i]}' #{is_disabled}>"
         html += "<span class='b-ipmask__span'>.</span>" if i < 3
       container.innerHTML = html
 
@@ -109,11 +110,41 @@
         els.each (idx, el) ->
           ip += el.value + (if idx is 3 then "" else ".")
 
-        el.value = (if ip is "..." then "" else ip)
+        el.setAttribute "value", (if ip is "..." then "" else ip)
 
         opts.callback.call(this) if opts.callback
 
         return e
+
+
+      # Проверка disabled
+      last_disabled_status = el.getAttribute "disabled"
+      $(el).on "DOMSubtreeModified", (e) ->
+        new_disabled_status = e.target.getAttribute "disabled"
+
+        if last_disabled_status isnt new_disabled_status
+          if typeof new_disabled_status is "string"
+            els.attr "disabled", "disabled"
+          else
+            els.removeAttr "disabled"
+
+          last_disabled_status = new_disabled_status
+
+      # Сеттер значение value с валидацией
+      Object.defineProperty el, "value",
+        set: (val) ->
+          arr = val.split "."
+
+          return console.warn "wrong ip" if arr.length isnt 4
+
+          for i in [0..3]
+            arr[i] = parseInt arr[i]
+            return console.warn "wrong ip" if isNaN(arr[i]) or arr[i] < 0 or arr[i] > 255
+
+          for j in [0..3]
+            els[j].value = arr[j]
+
+          el.setAttribute "value", arr.join "."
 
   this
 ) jQuery
