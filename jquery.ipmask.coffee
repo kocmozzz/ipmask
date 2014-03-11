@@ -1,5 +1,5 @@
 ###
-  jQuery IPMask v0.0.12
+  jQuery IPMask v0.0.13
   https://github.com/ozio/ipmask
 ###
 "use strict"
