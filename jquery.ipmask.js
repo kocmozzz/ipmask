@@ -1,6 +1,6 @@
 
 /*
- jQuery IPMask v0.0.14
+ jQuery IPMask v0.0.15
  https://github.com/ozio/ipmask
  */
 
@@ -116,8 +116,16 @@
           var sum, value;
           value = this.value;
           if (isKey(keyCodes.IGNORE, e.keyCode)) {
-            e.preventDefault();
+            if (!e.ctrlKey && !e.metaKey) {
+              e.preventDefault();
+            }
           } else if (isKey(keyCodes.NUMBERS, e.keyCode)) {
+            if (this.selectionStart !== this.selectionEnd) {
+              value = "" + (value.slice(0, this.selectionStart)) + (value.slice(this.selectionEnd));
+            }
+            if (e.shiftKey || e.altKey || value === "0") {
+              e.preventDefault();
+            }
             if (value.length === 2) {
               sum = value + codesToNumbers[e.keyCode];
               if (sum.length !== (parseInt(sum) + "").length || sum > 255) {
@@ -125,6 +133,9 @@
               } else {
                 go_next = true;
               }
+            }
+            if (value.length === 0 && codesToNumbers[e.keyCode] === 0) {
+              go_next = true;
             }
           } else if (isKey(keyCodes.POINT, e.keyCode)) {
             e.preventDefault();
@@ -145,10 +156,6 @@
             if (value.length === 0) {
               prevInput(this);
               e.preventDefault();
-            } else {
-              if (value.length === 1) {
-                go_prev = true;
-              }
             }
           }
           return e;

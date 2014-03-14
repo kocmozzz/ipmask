@@ -1,5 +1,5 @@
 ###
-  jQuery IPMask v0.0.14
+  jQuery IPMask v0.0.15
   https://github.com/ozio/ipmask
 ###
 "use strict"
@@ -84,15 +84,24 @@
         value = @value
 
         if isKey keyCodes.IGNORE, e.keyCode
-          e.preventDefault()
+          if not e.ctrlKey and not e.metaKey
+            e.preventDefault()
 
         else if isKey keyCodes.NUMBERS, e.keyCode
+          if @selectionStart isnt @selectionEnd
+            value = "#{value.slice(0, @selectionStart)}#{value.slice(@selectionEnd)}"
+
+          e.preventDefault() if e.shiftKey or e.altKey or value is "0"
+
           if value.length is 2
             sum = value + codesToNumbers[e.keyCode]
             if sum.length isnt (parseInt(sum) + "").length or sum > 255
               e.preventDefault()
             else
               go_next = yes
+
+          if value.length is 0 and codesToNumbers[e.keyCode] is 0
+            go_next = yes
 
         else if isKey keyCodes.POINT, e.keyCode
           e.preventDefault()
@@ -112,8 +121,6 @@
           if value.length is 0
             prevInput this
             e.preventDefault()
-
-          else go_prev = yes if value.length is 1
 
         return e
 
