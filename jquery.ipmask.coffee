@@ -1,7 +1,8 @@
 ###
-  jQuery IPMask v0.0.15
+  jQuery IPMask v0.0.16
   https://github.com/ozio/ipmask
 ###
+
 "use strict"
 
 (($) ->
@@ -38,6 +39,7 @@
 
   go_next = no
   go_prev = no
+  look_paste = no
 
   nextInput = (el) ->
     next = $(el).next().next()
@@ -80,6 +82,9 @@
       # Вешаем обработчики
       els = $(".b-ipmask__input", container);
 
+      els.on "paste", (e) ->
+        look_paste = e.target.value
+
       els.on "keydown", (e) ->
         value = @value
 
@@ -89,18 +94,20 @@
 
         else if isKey keyCodes.NUMBERS, e.keyCode
           if @selectionStart isnt @selectionEnd
-            value = "#{value.slice(0, @selectionStart)}#{value.slice(@selectionEnd)}"
 
-          e.preventDefault() if e.shiftKey or e.altKey or value is "0"
+            value = "#{value.slice(0, @selectionStart)}#{codesToNumbers[e.keyCode]}#{value.slice(@selectionEnd)}"
 
-          if value.length is 2
-            sum = value + codesToNumbers[e.keyCode]
-            if sum.length isnt (parseInt(sum) + "").length or sum > 255
-              e.preventDefault()
-            else
-              go_next = yes
+          e.preventDefault() if e.shiftKey or e.altKey
 
-          if value.length is 0 and codesToNumbers[e.keyCode] is 0
+          sum = value.slice(0, @selectionStart) + codesToNumbers[e.keyCode] + value.slice(@selectionEnd)
+
+          if sum.length isnt (parseInt(sum) + "").length or parseInt(sum) > 255
+            e.preventDefault()
+
+          if @selectionEnd is 2 and sum.length is 3 and parseInt(sum) <= 255
+            go_next = yes
+
+          if sum is "0"
             go_next = yes
 
         else if isKey keyCodes.POINT, e.keyCode
@@ -132,6 +139,15 @@
         if go_prev
           prevInput e.target
           go_prev = no
+
+        if look_paste
+          v = parseInt(e.target.value)
+          if not isNaN(v) and v > 0 and v < 255
+            e.target.value = v
+          else
+            e.target.value = look_paste
+
+          look_paste = no
 
         ip = ""
         els.each (idx, el) ->

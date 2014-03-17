@@ -1,6 +1,6 @@
 
 /*
- jQuery IPMask v0.0.15
+ jQuery IPMask v0.0.16
  https://github.com/ozio/ipmask
  */
 
@@ -30,7 +30,7 @@
   })(jQuery);
 
   (function($) {
-    var codesToNumbers, go_next, go_prev, isKey, keyCodes, nextInput, prevInput;
+    var codesToNumbers, go_next, go_prev, isKey, keyCodes, look_paste, nextInput, prevInput;
     keyCodes = {
       IGNORE: [0, 32, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 106, 107, 109, 186, 187, 188, 189, 191, 192, 219, 220, 221, 222],
       NUMBERS: [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105],
@@ -63,6 +63,7 @@
     };
     go_next = false;
     go_prev = false;
+    look_paste = false;
     nextInput = function(el) {
       var next;
       next = $(el).next().next();
@@ -112,6 +113,9 @@
         container.innerHTML = html;
         $(el).after(container);
         els = $(".b-ipmask__input", container);
+        els.on("paste", function(e) {
+          return look_paste = e.target.value;
+        });
         els.on("keydown", function(e) {
           var sum, value;
           value = this.value;
@@ -121,20 +125,19 @@
             }
           } else if (isKey(keyCodes.NUMBERS, e.keyCode)) {
             if (this.selectionStart !== this.selectionEnd) {
-              value = "" + (value.slice(0, this.selectionStart)) + (value.slice(this.selectionEnd));
+              value = "" + (value.slice(0, this.selectionStart)) + codesToNumbers[e.keyCode] + (value.slice(this.selectionEnd));
             }
-            if (e.shiftKey || e.altKey || value === "0") {
+            if (e.shiftKey || e.altKey) {
               e.preventDefault();
             }
-            if (value.length === 2) {
-              sum = value + codesToNumbers[e.keyCode];
-              if (sum.length !== (parseInt(sum) + "").length || sum > 255) {
-                e.preventDefault();
-              } else {
-                go_next = true;
-              }
+            sum = value.slice(0, this.selectionStart) + codesToNumbers[e.keyCode] + value.slice(this.selectionEnd);
+            if (sum.length !== (parseInt(sum) + "").length || parseInt(sum) > 255) {
+              e.preventDefault();
             }
-            if (value.length === 0 && codesToNumbers[e.keyCode] === 0) {
+            if (this.selectionEnd === 2 && sum.length === 3 && parseInt(sum) <= 255) {
+              go_next = true;
+            }
+            if (sum === "0") {
               go_next = true;
             }
           } else if (isKey(keyCodes.POINT, e.keyCode)) {
@@ -161,7 +164,7 @@
           return e;
         });
         els.on("keyup", function(e) {
-          var ip;
+          var ip, v;
           if (go_next) {
             nextInput(e.target);
             go_next = false;
@@ -169,6 +172,15 @@
           if (go_prev) {
             prevInput(e.target);
             go_prev = false;
+          }
+          if (look_paste) {
+            v = parseInt(e.target.value);
+            if (!isNaN(v) && v > 0 && v < 255) {
+              e.target.value = v;
+            } else {
+              e.target.value = look_paste;
+            }
+            look_paste = false;
           }
           ip = "";
           els.each(function(idx, el) {
